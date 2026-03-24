@@ -54,166 +54,125 @@
     <!-- ========================================== -->
     <!-- ESTRUCTURA DEL DOCUMENTO (ELEMENTOS)       -->
     <!-- ========================================== -->
+  <xs:simpleType name="TipoUnidadMedia">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="MB" />
+        <xs:enumeration value="GB" />
+        <xs:enumeration value="TB" />
+      </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="TipoDisco">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NVMe" />
+            <xs:enumeration value="SSD" />
+            <xs:enumeration value="HDD" />
+        </xs:restriction>
+    </xs:simpleType>
+  <xs:complexType name="TipoDetalleDisco">
+        <xs:attribute name="tipo" type="TipoDisco" use="required" />
+        <xs:attribute name="capacidad_tb" type="xs:integer" use="required" />
+        <xs:attribute name="principal" type="xs:boolean" use="required" />
+    </xs:complexType>
+
+                  <!-- Hardware -->
+                    <xs:complexType name="TipoHardware">
+                        <xs:sequence>
+                            <xs:element name="cpu">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute name="nucleos" type="xs:integer" use="required" />
+                                            <xs:attribute name="arquitectura" type="xs:string" use="required" />
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="ram">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:integer">
+                                        <xs:attribute name="unidad" type="TipoUnidadMedida" use="required" />
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="gpu" minOccurs="0">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:string">
+                                        <xs:attribute name="modelo" type="xs:string" use="required" />
+                                        <xs:attribute name="vram_gb" type="xs:integer" use="required" />
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+
+                          <xs:element name="discos">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="disco" type="TipoDetalleDisco" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+        </xs:sequence>
+        </xs:complexType>
+        </xs:element>
+
+                                        <!-- Software -->
+                      <xs:complexType name="TipoSoftware">
+                      <xs:sequence>
+                        <xs:element name="so">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:string">
+                                        <xs:attribute name="version" type="TipoVersion" use="required" />
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="servicios">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="servicio" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:string">
+                                        <xs:attribute name="puerto" type="xs:integer" use="required" />
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+        <xs:complexType name="TipoServidor">
+        <xs:sequence>
+            <xs:element name="hardware" type="TipoHardware" />
+            <xs:element name="software" type="TipoSoftware" />
+        </xs:sequence>
+        <xs:attribute name="id" type="TipoIdServidor" use="required" />
+        <xs:attribute name="rack" type="TipoRack" use="required" />
+        <xs:attribute name="estado" type="TipoEstado" use="required" />
+    </xs:complexType>
+
+  <!-- Atributos del Centro de Datos -->
+      <xs:complexType name="TipoCentroDatos">
+        <xs:sequence>
+            <xs:element name="servidor" type="TipoServidor" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="ubicacion" type="xs:string" use="required" />
+        <xs:attribute name="zona" type="TipoZona" use="required" />
+    </xs:complexType>
 
     <xs:element name="catalogo_cloud">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="centro_datos" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="servidor" maxOccurs="unbounded">
-                                <xs:complexType>
-                                    <xs:sequence>
-
-                                        <!-- Hardware -->
-                                        <xs:element name="hardware">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element name="cpu">
-                                                        <xs:complexType>
-                                                            <xs:simpleContent>
-                                                                <xs:extension base="xs:string">
-                                                                    <xs:attribute name="nucleos"
-                                                                        type="xs:integer"
-                                                                        use="required" />
-                                                                    <xs:attribute
-                                                                        name="arquitectura"
-                                                                        type="xs:string"
-                                                                        use="required" />
-                                                                </xs:extension>
-                                                            </xs:simpleContent>
-                                                        </xs:complexType>
-                                                    </xs:element>
-
-                                                    <xs:element name="ram">
-                                                        <xs:complexType>
-                                                            <xs:simpleContent>
-                                                                <xs:extension base="xs:integer">
-                                                                    <!-- Usamos RegEx sencilla para
-                                                                    forzar MB, GB o TB -->
-                                                                    <xs:attribute name="unidad"
-                                                                        use="required">
-                                                                        <xs:simpleType>
-                                                                            <xs:restriction
-                                                                                base="xs:string">
-                                                                                <xs:pattern
-                                                                                    value="MB|GB|TB" />
-                                                                            </xs:restriction>
-                                                                        </xs:simpleType>
-                                                                    </xs:attribute>
-                                                                </xs:extension>
-                                                            </xs:simpleContent>
-                                                        </xs:complexType>
-                                                    </xs:element>
-
-                                                    <!-- GPU es opcional (minOccurs=0) -->
-                                                    <xs:element name="gpu" minOccurs="0"
-                                                        maxOccurs="1">
-                                                        <xs:complexType>
-                                                            <xs:simpleContent>
-                                                                <xs:extension base="xs:string">
-                                                                    <xs:attribute name="modelo"
-                                                                        type="xs:string"
-                                                                        use="required" />
-                                                                    <xs:attribute name="vram_gb"
-                                                                        type="xs:integer"
-                                                                        use="required" />
-                                                                </xs:extension>
-                                                            </xs:simpleContent>
-                                                        </xs:complexType>
-                                                    </xs:element>
-
-                                                    <xs:element name="discos">
-                                                        <xs:complexType>
-                                                            <xs:sequence>
-                                                                <xs:element name="disco"
-                                                                    maxOccurs="unbounded">
-                                                                    <xs:complexType>
-                                                                        <xs:attribute name="tipo"
-                                                                            use="required">
-                                                                            <xs:simpleType>
-                                                                                <xs:restriction
-                                                                                    base="xs:string">
-                                                                                    <xs:pattern
-                                                                                        value="NVMe|SSD|HDD" />
-                                                                                </xs:restriction>
-                                                                            </xs:simpleType>
-                                                                        </xs:attribute>
-                                                                        <xs:attribute
-                                                                            name="capacidad_tb"
-                                                                            type="xs:integer"
-                                                                            use="required" />
-                                                                        <xs:attribute
-                                                                            name="principal"
-                                                                            type="xs:boolean"
-                                                                            use="required" />
-                                                                    </xs:complexType>
-                                                                </xs:element>
-                                                            </xs:sequence>
-                                                        </xs:complexType>
-                                                    </xs:element>
-
-                                                </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-
-                                        <!-- Software -->
-                                        <xs:element name="software">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element name="so">
-                                                        <xs:complexType>
-                                                            <xs:simpleContent>
-                                                                <xs:extension base="xs:string">
-                                                                    <xs:attribute name="version"
-                                                                        type="TipoVersion"
-                                                                        use="required" />
-                                                                </xs:extension>
-                                                            </xs:simpleContent>
-                                                        </xs:complexType>
-                                                    </xs:element>
-                                                    <xs:element name="servicios">
-                                                        <xs:complexType>
-                                                            <xs:sequence>
-                                                                <xs:element name="servicio"
-                                                                    maxOccurs="unbounded">
-                                                                    <xs:complexType>
-                                                                        <xs:simpleContent>
-                                                                            <xs:extension
-                                                                                base="xs:string">
-                                                                                <xs:attribute
-                                                                                    name="puerto"
-                                                                                    type="xs:integer"
-                                                                                    use="required" />
-                                                                            </xs:extension>
-                                                                        </xs:simpleContent>
-                                                                    </xs:complexType>
-                                                                </xs:element>
-                                                            </xs:sequence>
-                                                        </xs:complexType>
-                                                    </xs:element>
-                                                </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-
-                                    </xs:sequence>
-
-                                    <!-- Atributos del Servidor (Aplicando los tipos personalizados
-                                    con RegEx) -->
-                                    <xs:attribute name="id" type="TipoIdServidor" use="required" />
-                                    <xs:attribute name="rack" type="TipoRack" use="required" />
-                                    <xs:attribute name="estado" type="TipoEstado" use="required" />
-
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-
-                        <!-- Atributos del Centro de Datos -->
-                        <xs:attribute name="ubicacion" type="xs:string" use="required" />
-                        <xs:attribute name="zona" type="TipoZona" use="required" />
-
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="centro_datos" type="TipoCentroDatos" maxOccurs="unbounded" />
             </xs:sequence>
             <xs:attribute name="empresa" type="xs:string" use="required" />
         </xs:complexType>
